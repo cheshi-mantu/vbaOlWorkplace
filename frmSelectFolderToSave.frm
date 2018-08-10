@@ -2,9 +2,9 @@ VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSelectFolderToSave 
    Caption         =   "Please select folder to save attachments"
    ClientHeight    =   4650
-   ClientLeft      =   45
-   ClientTop       =   330
-   ClientWidth     =   9555
+   ClientLeft      =   48
+   ClientTop       =   336
+   ClientWidth     =   9552.001
    OleObjectBlob   =   "frmSelectFolderToSave.frx":0000
    ShowModal       =   0   'False
    StartUpPosition =   1  'CenterOwner
@@ -31,93 +31,96 @@ Dim fsFolder
 Dim fsSubFolder
 Dim strSubfolder As String
 Dim strFullPath As String
+Dim olApp As New Outlook.Application
+Dim olExp As Outlook.Explorer
+Dim olSel As Outlook.Selection
     
-lstbxSelect.Clear
-    'set full path to be openned
-    strFullPath = foldersTools.buildFSPathFromNS(Application.ActiveExplorer.CurrentFolder)
-    foldersTools.fsCheckAndBuildPath (strFullPath)
-    'create shell application
-Set objShell = CreateObject("Shell.Application")
-Set objFS = CreateObject("Scripting.FilesystemObject")
-    'open needed folder
-    'check if needed folder exists on file system
-    If objFS.FolderExists(strFullPath) Then
-        Set fsFolder = objFS.getfolder(strFullPath)
-            For Each fsSubFolder In fsFolder.subfolders
-                lstbxSelect.AddItem (Replace(fsSubFolder, strFullPath & "\", ""))
-            Next fsSubFolder
+    Set olExp = olApp.ActiveExplorer
+    Set olSel = olExp.Selection
+        
+        If olSel.Count > 1 Then
+            frmSelectFolderToSave.Hide
+            MsgBox ("I can process only 1 item at once")
+            Else
+                lstbxSelect.Clear
+                    'set full path to be opened
+                    strFullPath = foldersTools.buildFSPathFromNS(Application.ActiveExplorer.CurrentFolder)
+                    foldersTools.fsCheckAndBuildPath (strFullPath)
+                    'create shell application
+                    Set objShell = CreateObject("Shell.Application")
+                    Set objFS = CreateObject("Scripting.FilesystemObject")
+                    'open needed folder
+                    'check if needed folder exists on file system
+                        If objFS.FolderExists(strFullPath) Then
+                            Set fsFolder = objFS.getfolder(strFullPath)
+                                For Each fsSubFolder In fsFolder.subfolders
+                                    lstbxSelect.AddItem (Replace(fsSubFolder, strFullPath & "\", ""))
+                                Next fsSubFolder
+                        End If
+           frmSelectFolderToSave.Caption = "Please select subfolder in " & strFullPath
     End If
-                frmSelectFolderToSave.Caption = "Please select subfolder in " & strFullPath
 End Sub
 
 Private Sub btnSaveAttach_Click()
-subSetFolders
+
 'select current item in application
 'detect current folder
-Dim myNamespace As Outlook.NameSpace
-Dim olFolder As Outlook.MAPIFolder
 'to store currently selected folder name
 Dim strCurrentFolder
 Dim olApp As New Outlook.Application
 Dim olExp As Outlook.Explorer
 Dim olSel As Outlook.Selection
-Dim olEmail As Object
+Dim olEmail As MailItem
 Dim emailAtt As attachment
+
 Dim strNewSubfolder As String
 Dim arrName
-
-    Set myNamespace = Application.GetNamespace("MAPI")
-'define currently selected folder in a tree
-'check if current item has attachments if there is none then notify via msg box
-'frmSelectFolderToSave.Hide
-Set olExp = olApp.ActiveExplorer
-Set olSel = olExp.Selection
-If olSel.Count > 1 Then
-    MsgBox ("I can process only 1 item at once")
-    Else
-        Set olEmail = olSel.Item(1)
-        If olEmail.Class = olMail Then
-        strNewSubfolder = Year(olEmail.ReceivedTime)
-'needs to be refactored
-        If Len(Month(olEmail.ReceivedTime)) = 1 Then
-                strNewSubfolder = strNewSubfolder & "0" & Month(olEmail.ReceivedTime)
-            Else
-                strNewSubfolder = strNewSubfolder & "" & Month(olEmail.ReceivedTime)
-        End If
-        
-        If Len(Day(olEmail.ReceivedTime)) = 1 Then
-                strNewSubfolder = strNewSubfolder & "0" & Day(olEmail.ReceivedTime)
-            Else
-                strNewSubfolder = strNewSubfolder & "" & Day(olEmail.ReceivedTime)
-        End If
-        
-        arrName = Split(olEmail.Sender, " (")
-        arrName = Split(arrName(0), ",")
-        
-        strNewSubfolder = strNewSubfolder & " " & arrName(0)
-        
-    Set objShell = CreateObject("Shell.Application")
-    Set objFS = CreateObject("Scripting.FilesystemObject")
-Dim strNewFolderPath
-    strNewFolderPath = WorkingFolder & strCurrentFolder & "\" & lstbxSelect.Value & "\" & strNewSubfolder
-    MsgBox (strNewFolderPath)
-    'check if needed folder does not exist
-    If Not objFS.FolderExists(strNewFolderPath) Then
-    'if it doesn't then create it
-    Debug.Print strNewFolderPath
-        objFS.createFolder (strNewFolderPath)
-    End If
-    'destroy FS object
-    Set objFS = Nothing
 Dim arrFilename
-    
-    For Each emailAtt In olEmail.Attachments
-        arrFilename = Split(emailAtt.filename, ".")
-        emailAtt.SaveAsFile (strNewFolderPath & "\" & emailAtt.filename)
-    Next emailAtt
-      End If
-End If
-    frmSelectFolderToSave.Hide
-End Sub
+Dim strNewFolderPath As String
 
+subSetFolders
+    
+    Set olExp = olApp.ActiveExplorer
+    Set olSel = olExp.Selection
+        If olSel.Item(1).Class = olMail Then
+            Set olEmail = olSel.Item(1)
+            strNewSubfolder = Year(olEmail.ReceivedTime)
+            'needs to be refactored
+                If Len(Month(olEmail.ReceivedTime)) = 1 Then
+                    strNewSubfolder = strNewSubfolder & "0" & Month(olEmail.ReceivedTime)
+                Else
+                    strNewSubfolder = strNewSubfolder & "" & Month(olEmail.ReceivedTime)
+                End If 'Len month = 1
+                    If Len(Day(olEmail.ReceivedTime)) = 1 Then
+                        strNewSubfolder = strNewSubfolder & "0" & Day(olEmail.ReceivedTime)
+                    Else
+                        strNewSubfolder = strNewSubfolder & "" & Day(olEmail.ReceivedTime)
+                    End If 'len day =1
+        
+                arrName = Split(olEmail.Sender, " (")
+                arrName = Split(arrName(0), ",")
+                strNewSubfolder = strNewSubfolder & " " & arrName(0)
+                Set objShell = CreateObject("Shell.Application")
+                Set objFS = CreateObject("Scripting.FilesystemObject")
+
+                'Debug.Print "btnSaveAttach:" + buildFSPathFromNS(Application.ActiveExplorer.CurrentFolder)
+                'Debug.Print "btnSaveAttach:" + lstbxSelect.Value
+                'Debug.Print "btnSaveAttach:" + strNewSubfolder
+    
+                strNewFolderPath = buildFSPathFromNS(Application.ActiveExplorer.CurrentFolder) & lstbxSelect.Value & strNewSubfolder
+    
+                fsCheckAndBuildPath (strNewFolderPath)
+                
+                'Debug.Print strNewFolderPath
+    
+                For Each emailAtt In olEmail.Attachments
+                    If emailAtt.Type <> olOLE Then
+                        emailAtt.SaveAsFile (strNewFolderPath & "\" & emailAtt.filename)
+                    End If
+                Next emailAtt
+            End If
+
+Set objFS = Nothing
+frmSelectFolderToSave.Hide
+End Sub
 

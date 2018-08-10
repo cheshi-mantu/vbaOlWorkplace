@@ -117,7 +117,7 @@ End Sub
 
 Sub subSmallTask()
 Dim objExplorer As Explorer
- Dim objMail As mailItem
+ Dim objMail As MailItem
  Set objExplorer = Application.ActiveExplorer
  
  Dim strPaste  As Variant

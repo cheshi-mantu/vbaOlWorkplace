@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSelectFolder 
    Caption         =   "Search for a folder"
-   ClientHeight    =   9900
-   ClientLeft      =   45
-   ClientTop       =   330
-   ClientWidth     =   12015
+   ClientHeight    =   9900.001
+   ClientLeft      =   48
+   ClientTop       =   336
+   ClientWidth     =   12012
    OleObjectBlob   =   "frmSelectFolder.frx":0000
    ShowModal       =   0   'False
    StartUpPosition =   1  'CenterOwner

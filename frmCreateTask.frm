@@ -2,9 +2,9 @@ VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmCreateTask 
    Caption         =   "Create task"
    ClientHeight    =   4380
-   ClientLeft      =   45
-   ClientTop       =   330
-   ClientWidth     =   9465
+   ClientLeft      =   48
+   ClientTop       =   336
+   ClientWidth     =   9468.001
    OleObjectBlob   =   "frmCreateTask.frx":0000
    StartUpPosition =   1  'CenterOwner
 End

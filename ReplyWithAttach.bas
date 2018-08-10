@@ -1,6 +1,6 @@
 Attribute VB_Name = "ReplyWithAttach"
 Sub ReplyWithAttachments()
-    Dim oReply As Outlook.mailItem
+    Dim oReply As Outlook.MailItem
     Dim oItem As Object
      
     Set oItem = GetCurrentItem()
@@ -15,7 +15,7 @@ Sub ReplyWithAttachments()
     Set oItem = Nothing
 End Sub
 Sub ReplyAllWithAttachments()
-    Dim oReply As Outlook.mailItem
+    Dim oReply As Outlook.MailItem
     Dim oItem As Object
      
     Set oItem = GetCurrentItem()

@@ -134,25 +134,27 @@ Set objSubfolder = Nothing
 Set objDestFolder = Nothing
 End Sub
 Function buildFSPathFromNS(olCurFolder As Outlook.MAPIFolder) As String
+
 Dim olFolder As Outlook.MAPIFolder
 Dim olNS As Outlook.NameSpace
 Dim strBuiltPath
 Dim strPathTail
+
 'setting folders for the session
 subSetFolders
 
 Set olNS = Application.GetNamespace("MAPI")
-strBuiltPath = Tools.WorkingFolder
-strPathTail = ""
-    If olCurFolder <> olNS.GetDefaultFolder(olFolderInbox) Then
+    strBuiltPath = Tools.WorkingFolder
+    strPathTail = ""
+        If olCurFolder <> olNS.GetDefaultFolder(olFolderInbox) Then
             Set olFolder = olCurFolder
                 Do While olFolder <> olNS.GetDefaultFolder(olFolderInbox)
                     strPathTail = olFolder.Name + "\" + strPathTail
                     Set olFolder = olFolder.Parent
                 Loop
-    End If
-    strBuiltPath = strBuiltPath + strPathTail
-    buildFSPathFromNS = strBuiltPath
+        End If
+        strBuiltPath = strBuiltPath + strPathTail
+        buildFSPathFromNS = strBuiltPath
 End Function
 'provides test interface for Function buildFSPathFromNS
 Sub testDrivebuildFSPathFromNS()
@@ -168,11 +170,11 @@ Sub fsCheckAndBuildPath(strPath As String)
     'we are sure that the disk exists
     strFullPath = arrPath(0) + "\"
     
-    For i = LBound(arrPath) + 1 To UBound(arrPath) - 1
+    For i = LBound(arrPath) + 1 To UBound(arrPath)
         If arrPath(i) <> "" Then
             strFullPath = strFullPath + arrPath(i) + "\"
         End If
-        Debug.Print "Sub fsCheckAndBuildPath: " + strFullPath
+        'Debug.Print "Sub fsCheckAndBuildPath: " + strFullPath
         
         If Not objFSys.FolderExists(strFullPath) Then
             objFSys.createFolder (strFullPath)
@@ -230,5 +232,57 @@ Dim strFullPath As String
     Set objShell = Nothing
     Set objFS = Nothing
     Set myNamespace = Nothing
+End Sub
+Sub openFSFolder(strPath As String)
+
+On Error Resume Next
+'defining variables
+'to store currently selected folder name
+Dim objShell
+Dim strDialogResult
+
+subSetFolders
+'========================================
+
+'define currently selected folder in a tree using regexp mask defined above
+Dim strFullPath As String
+strFullPath = strPath
+'create shell application
+Set objShell = CreateObject("Shell.Application")
+        
+        objShell.ShellExecute strFullPath, strFullPath, strFullPath, "open", 1
+        Else
+            ' ask user to create needed folder on file system if it does not exist
+            strDialogResult = MsgBox("The folder does not exist, do you want me to create it?", vbYesNo)
+                ' if Yes is pressed then create folder
+                If strDialogResult = vbYes Then
+                    objFS.createFolder (strFullPath)
+                End If
+    End If
+    'Destroy objects
+    Set objShell = Nothing
+    Set objFS = Nothing
+    Set myNamespace = Nothing
+
+End Sub
+Sub createMapiAndLocalFolder()
+Dim strNewFolder, strNewFolderPath As String
+Dim strCurrentFolder As String
+    subSetFolders
+    strCurrentFolder = buildFSPathFromNS(Application.ActiveExplorer.CurrentFolder)
+    'Debug.Print "From createMapiAndLocalFolder: " & strCurrentFolder
+    strNewFolder = InputBox("Enter the name of folder you want to create:")
+    If strNewFolder = "" Then
+        MsgBox ("Input is empty, we won't create any folders")
+        Exit Sub
+    End If
+    strNewFolderPath = strCurrentFolder & "\" & strNewFolder
+    fsCheckAndBuildPath (strNewFolderPath)
+    'add subfolder for selected folder
+    Application.ActiveExplorer.CurrentFolder.Folders.Add (strNewFolder)
+    Set fileSys = Nothing
+    Set newFolder = Nothing
+    'Set olFolder = Nothing
+    'Set myNamespace = Nothing
 End Sub
 

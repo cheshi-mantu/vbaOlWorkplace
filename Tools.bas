@@ -27,7 +27,7 @@ subSetFolders
     Dim Item As Object
     Set Item = app.ActiveInspector.CurrentItem
         If Item.Class <> olMail Then Exit Sub
-    Dim email As mailItem
+    Dim email As MailItem
     Set email = Item
     Dim taskItem As taskItem
     Set taskItem = app.CreateItem(olTaskItem)
@@ -317,36 +317,6 @@ End If
 Dim inspector As inspector
     Set inspector = objMailItem.GetInspector
     inspector.Display
-End Sub
-Sub createMapiAndLocalFolder()
-subSetFolders
-'Dim myNamespace As Outlook.NameSpace
-Dim strNewFolder, strNewFolderPath As String
-Dim strCurrentFolder As String
-'Dim olFolder As Outlook.MAPIFolder
-
-'Set myNamespace = Application.GetNamespace("MAPI")
-    strCurrentFolder = Application.ActiveExplorer.CurrentFolder.Name
-
-strNewFolder = InputBox("Enter the name of folder you want to create:")
-
-If strNewFolder = "" Then
-    MsgBox ("Input is empty, we won't create any folders")
-    Exit Sub
-End If
-strNewFolderPath = WorkingFolder + strCurrentFolder + "\" + strNewFolder
-'Debug.Print strNewFolder
-'Debug.Print strNewFolderPath
-' init file system objects
-Dim fileSys, newFolder
-Set fileSys = CreateObject("Scripting.FileSystemObject")
-newFolder = fileSys.createFolder(strNewFolderPath)
-'add subfolder for selected folder
-Application.ActiveExplorer.CurrentFolder.Folders.Add (strNewFolder)
-Set fileSys = Nothing
-Set newFolder = Nothing
-'Set olFolder = Nothing
-'Set myNamespace = Nothing
 End Sub
 Sub subFindFolderInMess()
 subSetFolders
